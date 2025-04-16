@@ -1,0 +1,110 @@
+﻿<UserControl x:Class="Logistics_Software.Views.AdminDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:Logistics_Software.Views"
+             xmlns:viewModels="clr-namespace:Logistics_Software.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewModels:AdminDashboardViewModel}"
+             Background="#F5F5F5">
+
+    <UserControl.DataContext>
+        <viewModels:AdminDashboardViewModel />
+    </UserControl.DataContext>
+
+    <Grid Margin="20" RowDefinitions="Auto, *" ColumnDefinitions="1*">
+        <!-- Заголовок -->
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+            <TextBlock Text="Панель администратора"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Foreground="#2E5A88" />
+            <Button Content="Выйти"
+                    Command="{Binding LogoutCommand}"
+                    Margin="Auto,0,0,0"
+                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                    Foreground="#FF4444"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Основной контент -->
+        <TabControl Grid.Row="1"
+                    Style="{StaticResource MaterialDesignTabControl}"
+                    Margin="0">
+            <!-- Управление пользователями -->
+            <TabItem Header="Пользователи">
+                <Grid Margin="8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <Button Content="Добавить"
+                                Command="{Binding AddUserCommand}"
+                                Style="{StaticResource MaterialDesignRaisedButton}" />
+                        <Button Content="Удалить"
+                                Command="{Binding DeleteUserCommand}"
+                                Margin="8,0,0,0"
+                                IsEnabled="{Binding SelectedUser, Converter={StaticResource NullToBoolConverter}}"
+                                Style="{StaticResource MaterialDesignOutlinedButton}" />
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding Users}"
+                              SelectedItem="{Binding SelectedUser}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              HeadersVisibility="Column"
+                              Margin="0"
+                              Background="White"
+                              Foreground="#333">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Имя" Binding="{Binding Name}" Width="*" />
+                            <DataGridTextColumn Header="Роль" Binding="{Binding Role}" Width="*" />
+                            <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="2*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- Журнал активности -->
+            <TabItem Header="Журнал действий">
+                <ListBox ItemsSource="{Binding Logs}"
+                         Margin="8"
+                         Background="White"
+                         Foreground="#333"
+                         FontFamily="Consolas"
+                         FontSize="13"
+                         Style="{StaticResource MaterialDesignListBox}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </TabItem>
+
+            <!-- База данных -->
+            <TabItem Header="База данных">
+                <StackPanel Margin="8">
+                    <TextBlock Text="Контроль базы данных"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,12" />
+                    <Button Content="Проверить целостность"
+                            Command="{Binding CheckDatabaseCommand}"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            Margin="0,0,0,8" />
+                    <Button Content="Исправить ошибки"
+                            Command="{Binding FixDatabaseCommand}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}" />
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>
+

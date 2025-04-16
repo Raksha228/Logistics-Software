@@ -1,0 +1,106 @@
+﻿<UserControl x:Class="Logistics_Software.Views.MessagesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:viewModels="clr-namespace:Logistics_Software.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="1000"
+             Background="#F5F5F5">
+
+    <UserControl.DataContext>
+        <viewModels:MessagesViewModel />
+    </UserControl.DataContext>
+
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Список чатов -->
+        <StackPanel Grid.Column="0" Background="#333333" >
+            <TextBlock Text="Чаты"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       Foreground="White"
+                       Margin="12" />
+            <ListBox ItemsSource="{Binding Chats}"
+                     SelectedItem="{Binding SelectedChat}"
+                     DisplayMemberPath="DisplayName"
+                     Background="#333"
+                     BorderThickness="0"
+                     Foreground="White"
+                     FontSize="14"
+                     Style="{StaticResource MaterialDesignListBox}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="8">
+                            <TextBlock Text="{Binding DisplayName}" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding LastMessageSnippet}" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
+        <!-- Область сообщений -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Заголовок чата -->
+            <Border Background="#2E5A88" Padding="12">
+                <TextBlock Text="{Binding SelectedChat.DisplayName}" 
+                           FontSize="18" 
+                           FontWeight="Bold" 
+                           Foreground="White"/>
+            </Border>
+
+            <!-- Сообщения -->
+            <ScrollViewer Grid.Row="1" Margin="0,8" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding SelectedChat.Messages}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{Binding IsIncoming, Converter={StaticResource MessageBubbleColorConverter}}"
+                                    CornerRadius="12"
+                                    Padding="10"
+                                    Margin="8"
+                                    HorizontalAlignment="{Binding IsIncoming, Converter={StaticResource MessageAlignmentConverter}}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Foreground="White"/>
+                                    <TextBlock Text="{Binding Timestamp, StringFormat=t}" FontSize="10" Opacity="0.7" HorizontalAlignment="Right"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Ввод сообщения -->
+            <DockPanel Grid.Row="2" Margin="0,8">
+                <TextBox Text="{Binding NewMessageText, UpdateSourceTrigger=PropertyChanged}"
+                         VerticalAlignment="Center"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         Margin="8"
+                         MinHeight="40"
+                         FontSize="14"
+                         materialDesign:HintAssist.Hint="Введите сообщение..."
+                         DockPanel.Dock="Left"
+                         Width="Auto"/>
+                <Button Content="Отправить"
+                        Command="{Binding SendMessageCommand}"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Background="#2E5A88"
+                        Foreground="White"
+                        Margin="8"
+                        MinWidth="100"
+                        DockPanel.Dock="Right"/>
+            </DockPanel>
+        </Grid>
+    </Grid>
+</UserControl>
