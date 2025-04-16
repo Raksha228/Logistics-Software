@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:fa="http://schemas.fontawesome.com/winfx/2006/xaml">
+
+    <fa:FontAwesome x:Key="HomeIcon" Icon="Home" Foreground="{StaticResource PrimaryBrush}" FontSize="20"/>
+    <fa:FontAwesome x:Key="SettingsIcon" Icon="Cog" Foreground="{StaticResource DarkGrayBrush}" FontSize="20"/>
+    <fa:FontAwesome x:Key="UserIcon" Icon="User" Foreground="{StaticResource PrimaryBrush}" FontSize="20"/>
+
+
+
+</ResourceDictionary>
