@@ -9,10 +9,21 @@ namespace Logistics_Software.ViewModels
 {
     public partial class BaseViewModel : ObservableObject
     {
-        [ObservableProperty]
-        private bool _isBusy;
+        // Здесь можно будет добавить общую логику или свойства для всех ViewModel.
+        // Например, индикатор загрузки, сообщения об ошибках и т.п.
 
-        [ObservableProperty]
-        private string? _title;
+        private bool _isBusy;
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set => SetProperty(ref _isBusy, value);
+        }
+
+        private string _statusMessage;
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            set => SetProperty(ref _statusMessage, value);
+        }
     }
 }

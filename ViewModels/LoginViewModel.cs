@@ -1,45 +1,85 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Backend.DataAccess;
+using Backend.Models;
+using Backend.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Logistics_Software.ViewModels
 {
-    public partial class LoginViewModel : BaseViewModel
+    public partial class LoginViewModel : ObservableObject
     {
-        [ObservableProperty]
-        private string _username;
-
-        [ObservableProperty]
-        private string _password;
-
-        [ObservableProperty]
-        private bool _isLoginFailed;
+        private readonly AuthService _authService;
+        private readonly NavigationService _navigationService;
 
         public LoginViewModel()
         {
-            Title = "Вход в систему";
+            _authService = new AuthService();
+            _navigationService = NavigationService.Instance;
         }
+
+        [ObservableProperty]
+        private string username;
+
+        [ObservableProperty]
+        private string password;
+
+        [ObservableProperty]
+        private bool isLoading;
+
+        [ObservableProperty]
+        private string loginError;
 
         [RelayCommand]
         private async Task LoginAsync()
         {
-            IsBusy = true;
-            await Task.Delay(1000); // Симуляция запроса к серверу
+            LoginError = string.Empty;
+            IsLoading = true;
 
-            if (_username == "admin" && _password == "1234")
+            try
             {
-                IsLoginFailed = false;
-            }
-            else
-            {
-                IsLoginFailed = true;
-            }
+                var user = await _authService.LoginAsync(Username, Password);
 
-            IsBusy = false;
+                if (user != null)
+                {
+                    // Навигация в зависимости от роли
+                    switch (user.Role)
+                    {
+                        case UserRole.Client:
+                            _navigationService.NavigateTo(new ClientDashboardViewModel(user));
+                            break;
+                        case UserRole.Manager:
+                            _navigationService.NavigateTo(new ManagerDashboardViewModel(user));
+                            break;
+                        case UserRole.Administrator:
+                            _navigationService.NavigateTo(new AdminDashboardViewModel(user));
+                            break;
+                        default:
+                            LoginError = "Неизвестная роль пользователя.";
+                            break;
+                    }
+                }
+                else
+                {
+                    LoginError = "Неверный логин или пароль.";
+                }
+            }
+            catch (Exception ex)
+            {
+                LoginError = $"Ошибка входа: {ex.Message}";
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        [RelayCommand]
+        private void NavigateToRegister()
+        {
+            _navigationService.NavigateTo(new RegisterViewModel());
         }
     }
 }

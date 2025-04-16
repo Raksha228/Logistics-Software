@@ -1,33 +1,67 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Logistics_Software.ViewModels;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Logistics_Software.ViewModels
 {
-    public partial class NavigationViewModel : BaseViewModel
+    public partial class NavigationViewModel : ObservableObject
     {
         [ObservableProperty]
-        private BaseViewModel _currentViewModel;
+        private object currentViewModel;
 
         public NavigationViewModel()
+        {
+            NavigateToLogin();
+        }
+
+        [RelayCommand]
+        private void NavigateToLogin()
+        {
+            CurrentViewModel = new LoginViewModel(this);
+        }
+
+        [RelayCommand]
+        private void NavigateToRegister()
+        {
+            CurrentViewModel = new RegisterViewModel(this);
+        }
+
+        [RelayCommand]
+        private void NavigateToClientDashboard()
+        {
+            CurrentViewModel = new ClientDashboardViewModel(this);
+        }
+
+        [RelayCommand]
+        private void NavigateToManagerDashboard()
+        {
+            CurrentViewModel = new ManagerDashboardViewModel(this);
+        }
+
+        [RelayCommand]
+        private void NavigateToAdminDashboard()
+        {
+            CurrentViewModel = new AdminDashboardViewModel(this);
+        }
+
+        [RelayCommand]
+        private void NavigateToOrders()
         {
             CurrentViewModel = new OrdersViewModel();
         }
 
         [RelayCommand]
-        private void NavigateTo(string viewModelName)
+        private void NavigateToUsers()
         {
-            CurrentViewModel = viewModelName switch
-            {
-                "Orders" => new OrdersViewModel(),
-                "Users" => new UsersViewModel(),
-                "Login" => new LoginViewModel(),
-                _ => throw new ArgumentException("Неизвестная страница")
-            };
+            CurrentViewModel = new UsersViewModel();
+        }
+
+        [RelayCommand]
+        private void NavigateToMessages()
+        {
+            // В качестве примера — передаем userId 1. На практике надо передавать текущего авторизованного пользователя.
+            CurrentViewModel = new MessagesViewModel(userId: 1);
         }
     }
 }

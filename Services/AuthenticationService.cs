@@ -1,48 +1,71 @@
 ﻿using Backend.DataAccess;
 using Backend.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-
 
 namespace Logistics_Software.Services
 {
     public class AuthenticationService
     {
         private readonly AppDbContext _context;
-        private readonly UserContextService _userContext;
 
-        public AuthenticationService(AppDbContext context, UserContextService userContext)
+        public AuthenticationService(AppDbContext context)
         {
             _context = context;
-            _userContext = userContext;
         }
 
-        public async Task<bool> LoginAsync(string username, string password)
+        public async Task<User?> AuthenticateAsync(string username, string password)
         {
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == username && u.PasswordHash == password); // TODO: Хешировать пароль
+                .FirstOrDefaultAsync(u => u.Username == username);
 
-            if (user != null)
-            {
-                _userContext.SetUser(user);
-                return true;
-            }
+            if (user == null)
+                return null;
 
-            return false;
+            var hashedPassword = HashPassword(password);
+
+            return user.Password == hashedPassword ? user : null;
         }
 
-        public async Task<bool> RegisterAsync(User user)
+        public async Task<bool> RegisterAsync(string username, string password, string confirmPassword, string email, string role)
         {
-            if (await _context.Users.AnyAsync(u => u.Username == user.Username))
+            if (string.IsNullOrWhiteSpace(username) ||
+                string.IsNullOrWhiteSpace(password) ||
+                string.IsNullOrWhiteSpace(confirmPassword) ||
+                string.IsNullOrWhiteSpace(email))
                 return false;
+
+            if (password != confirmPassword)
+                return false;
+
+            if (await _context.Users.AnyAsync(u => u.Username == username))
+                return false;
+
+            var user = new User
+            {
+                Username = username,
+                Password = HashPassword(password),
+                Email = email,
+                Role = role,
+                RegisteredAt = DateTime.UtcNow
+            };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public static string HashPassword(string password)
+        {
+            using var sha256 = SHA256.Create();
+            byte[] inputBytes = Encoding.UTF8.GetBytes(password);
+            byte[] hashBytes = sha256.ComputeHash(inputBytes);
+            return Convert.ToBase64String(hashBytes);
+        }
     }
 }
+

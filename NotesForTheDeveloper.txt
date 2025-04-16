@@ -1,17 +1,17 @@
-LoginView -
+LoginView - - 
 
-RegisterView - 
+RegisterView - -
 
-ClientDashboardView - 
+ClientDashboardView - -
 
-ManagerDashboardView - 
+ManagerDashboardView - -
 
-AdminDashboardView - 
+AdminDashboardView - -
 
-OrdersView - 
+OrdersView - -
 
-UsersView - 
+UsersView - -
 
-MessagesView - 
+MessagesView - -
 
-NavigationView
+NavigationView - -

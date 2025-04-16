@@ -1,44 +1,85 @@
-﻿using Logistics_Software.ViewModels;
+﻿using Backend.DataAccess;
+using Backend.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-
-
-
-
 
 namespace Logistics_Software.Services
 {
-    class NavigationService : INavigationService
+    public class NotificationService
     {
-        private readonly IServiceProvider _provider;
-        private readonly Stack<FrameworkElement> _history = new();
+        private readonly AppDbContext _context;
 
-        public NavigationService(IServiceProvider provider)
+        public NotificationService(AppDbContext context)
         {
-            _provider = provider;
+            _context = context;
         }
 
-        public void NavigateTo<TViewModel>() where TViewModel : class
+        // Создать новое уведомление
+        public async Task<Notification> CreateNotificationAsync(int userId, string message)
         {
-            var viewModel = _provider.GetService(typeof(TViewModel)) as BaseViewModel;
-            var view = ViewLocator.ResolveView(viewModel);
-            view.DataContext = viewModel;
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                throw new ArgumentException("Пользователь не найден");
 
-            Application.Current.MainWindow.Content = view;
-            _history.Push(view);
-        }
-
-        public void GoBack()
-        {
-            if (_history.Count > 1)
+            var notification = new Notification
             {
-                _history.Pop();
-                Application.Current.MainWindow.Content = _history.Peek();
-            }
+                UserId = userId,
+                Message = message,
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false
+            };
+
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
+
+            return notification;
+        }
+
+        // Получить все уведомления пользователя
+        public async Task<List<Notification>> GetNotificationsForUserAsync(int userId)
+        {
+            return await _context.Notifications
+                .Where(n => n.UserId == userId)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToListAsync();
+        }
+
+        // Отметить уведомление как прочитанное
+        public async Task<bool> MarkAsReadAsync(int notificationId)
+        {
+            var notification = await _context.Notifications.FindAsync(notificationId);
+            if (notification == null)
+                return false;
+
+            notification.IsRead = true;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Удалить уведомление
+        public async Task<bool> DeleteNotificationAsync(int notificationId)
+        {
+            var notification = await _context.Notifications.FindAsync(notificationId);
+            if (notification == null)
+                return false;
+
+            _context.Notifications.Remove(notification);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Удалить все уведомления пользователя
+        public async Task<int> ClearNotificationsForUserAsync(int userId)
+        {
+            var notifications = await _context.Notifications
+                .Where(n => n.UserId == userId)
+                .ToListAsync();
+
+            _context.Notifications.RemoveRange(notifications);
+            return await _context.SaveChangesAsync();
         }
     }
 }

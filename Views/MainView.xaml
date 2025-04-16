@@ -8,20 +8,20 @@
         Title="Логистика" Height="600" Width="900"
         WindowStartupLocation="CenterScreen">
 
-    <Window.DataContext>
+    <!--<Window.DataContext>
         <vm:MainViewModel/>
-    </Window.DataContext>
+    </Window.DataContext>-->
 
     <Grid>
-        <DockPanel>
-            <!-- Верхняя панель -->
+        <!--<DockPanel>
+            --><!-- Верхняя панель --><!--
             <ToolBar DockPanel.Dock="Top" Background="#2E5A88">
                 <TextBlock Text="{Binding Title}" Foreground="White" FontSize="18" VerticalAlignment="Center"/>
             </ToolBar>
 
-            <!-- Главное содержимое -->
+            --><!-- Главное содержимое --><!--
             <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden"/>
-        </DockPanel>
+        </DockPanel>-->
     </Grid>
     
 </Window>
